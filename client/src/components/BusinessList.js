@@ -1,7 +1,8 @@
 // client/src/components/BusinessList.js
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { businessApi } from '../services/api';
+import axios from 'axios';
+
+const API_URL = 'http://localhost:5000/api';
 
 const BusinessList = ({ businesses, onDeleteBusiness }) => {
   const [filters, setFilters] = useState({
@@ -29,7 +30,7 @@ const BusinessList = ({ businesses, onDeleteBusiness }) => {
   const handleDelete = async (id) => {
     if (window.confirm('Tem certeza que deseja excluir esta empresa?')) {
       try {
-        await businessApi.deleteBusiness(id);
+        await axios.delete(`${API_URL}/businesses/${id}`);
         if (onDeleteBusiness) {
           onDeleteBusiness(id);
         }
@@ -40,16 +41,13 @@ const BusinessList = ({ businesses, onDeleteBusiness }) => {
     }
   };
   
-  const handleExportExcel = () => {
-    const url = businessApi.getExcelDownloadUrl(filters);
-    window.open(url, '_blank');
-  };
-  
   return (
     <div className="business-list">
       <div className="list-header">
         <h2>Empresas Encontradas ({filteredBusinesses.length})</h2>
-        <button onClick={handleExportExcel}>Exportar para Excel</button>
+        <button onClick={() => window.open(`${API_URL}/businesses/export/excel`, '_blank')}>
+          Exportar para Excel
+        </button>
       </div>
       
       <div className="filters">
@@ -100,9 +98,6 @@ const BusinessList = ({ businesses, onDeleteBusiness }) => {
                   <td>{business.city}</td>
                   <td>{business.cnpj || 'Não encontrado'}</td>
                   <td>
-                    <Link to={`/business/${business._id}`} className="btn-edit">
-                      Editar
-                    </Link>
                     <button 
                       className="btn-delete"
                       onClick={() => handleDelete(business._id)}

@@ -15,7 +15,4 @@ router.put('/:id', businessController.updateBusiness);
 // Excluir empresa
 router.delete('/:id', businessController.deleteBusiness);
 
-// Exportar para Excel
-router.get('/export/excel', businessController.exportToExcel);
-
 module.exports = router;

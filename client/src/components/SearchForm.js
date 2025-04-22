@@ -1,11 +1,13 @@
 // client/src/components/SearchForm.js
 import React, { useState } from 'react';
-import { searchApi } from '../services/api';
+import axios from 'axios';
+
+const API_URL = 'http://localhost:5000/api';
 
 const SearchForm = ({ onSearchComplete }) => {
   const [formData, setFormData] = useState({
     category: '',
-    location: 'Florianópolis'
+    location: 'Florianópolis, SC'
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -23,12 +25,14 @@ const SearchForm = ({ onSearchComplete }) => {
     setError(null);
     
     try {
-      const response = await searchApi.createSearch(formData);
+      const response = await axios.post(`${API_URL}/searches`, formData);
+      alert('Busca iniciada com sucesso!');
       
       if (onSearchComplete) {
         onSearchComplete(response.data.data);
       }
     } catch (err) {
+      console.error('Erro na requisição:', err);
       setError(err.response?.data?.error || 'Erro ao iniciar busca');
     } finally {
       setLoading(false);
@@ -42,7 +46,7 @@ const SearchForm = ({ onSearchComplete }) => {
       
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-        <label htmlFor="category">Tipo de Empresa</label>
+          <label htmlFor="category">Tipo de Empresa</label>
           <input
             type="text"
             id="category"

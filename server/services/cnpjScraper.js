@@ -38,24 +38,22 @@ class CnpjScraper {
     
     while (retries < maxRetries) {
       try {
-        await this.page.goto(url, { waitUntil: 'networkidle2' });
+        await this.page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
         
-        // Aguardar carregamento dos resultados
-        await this.page.waitForSelector('div.g', { timeout: 5000 });
-        
-        // Extrair o texto do primeiro resultado
-        const result = await this.page.evaluate(() => {
-          const firstResult = document.querySelector('div.g');
-          return firstResult ? firstResult.innerText : '';
+        // Extrair todo o texto da página
+        const pageContent = await this.page.evaluate(() => {
+          return document.body.innerText;
         });
         
-        // Procurar CNPJ com ou sem formatação
-        const cnpjRegex = /(\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2})|(\d{14})/;
-        const cnpjFound = result.match(cnpjRegex);
+        // Procurar CNPJ com ou sem formatação usando regex
+        const cnpjRegex = /(\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2})|(\d{14})/g;
+        const cnpjMatches = pageContent.match(cnpjRegex);
         
-        if (cnpjFound) {
-          return cnpjFound[0];
+        if (cnpjMatches && cnpjMatches.length > 0) {
+          console.log(`CNPJ encontrado: ${cnpjMatches[0]}`);
+          return cnpjMatches[0]; // Retorna o primeiro CNPJ encontrado
         } else {
+          console.log(`Nenhum CNPJ encontrado para: ${businessName}`);
           return null;
         }
       } catch (error) {
